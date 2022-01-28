@@ -1,12 +1,57 @@
 # `<regex-input>`
 
+
+* [Introduction](#introduction)
+* [Installation](#installation)
+* [Attributes](#attributes)
+  * [pattern](#pattern-string)
+  * [flags](#flags-string)
+  * [flagstate](#flagstate-string)
+  * [allowedflags](#allowedflags-string)
+  * [maxlength](#maxlength-number
+  * [labelid](#labelid-string)
+  * [notjs](#notjs-boolean)
+  * [nodelims](#nodelims-boolean) (no delimiters)
+  * [delim](#delim-string)
+  * [paireddelims](#paireddelims-boolean)
+  * [showlabels](#showlabels-boolean)
+  * [disabled](#disabled-boolean)
+  * [testable](#testable-boolean)
+  * [allowinvalid](#allowinvalid-boolean)
+* [Public properties](#public-properties)
+  * [testSample](#testsample-string)
+  * [splitsample](#splitsample-boolean)
+  * [trimSample](#trimsample-boolean)
+  * [hasError](#haserror-boolean)
+  * [wholeRegex](#wholeregex-string)
+  * [results](#results-array)
+* [Styling](#styling)
+  * [CSS custom properties](#css-custom-properties)
+    * [Accessibility - outline styles](#accessibility---outline-styles)
+-----
+
+## Introduction
+
 `<regex-input>` is a web component that allows users to enter
 regular expressions and have them validated immediatly to ensure
 they are valid.
 
-It also has an optional sample test user interface which provides
-a modal where users can modify the regex & test it against a sample
-block of text.
+It's primary purpose is for use in applications that allow admins 
+to create user input fields that include validation. This allows 
+admins to know that the regular expression they want to use is valid.
+
+If enabled by the client, `<regex-input>` has an optional user 
+interface that allows admins to test against samples of expected 
+input. The test interface pops up in a  modal where users can modify 
+the regex & test it against a sample block of text. This allows an 
+admin know that the regular expression (as well as being valid) also 
+matches (and/or excludes) the right things.
+
+By watching for `click` events, emitted by `<regex-input>` the client 
+can pass the `pattern`,  `flags`, `sampleText`, `splitSample` & 
+`trimSample` values to an external regex engine (e.g. PHP's PCRE) 
+then return the results to the `results` property which then can be 
+rendered.
 
 -----
 
@@ -20,7 +65,7 @@ npm run dev;
 
 -----
 
-## Attriubtes
+## Attributes
 
 To allow for enough flexibility, this component has 15 attributes. All attributes have (what I believe to be) sensible defaults, so it should work as a simple custom element with no attributes specified. However, it's advisable to always include the `pattern` & `flags` attributes.
 
@@ -99,8 +144,6 @@ __NOTE:__ If [notjs](#notjs) is set to `TRUE` it can be a list of any
 <regex-input pattern="" flags="" notjs allowedflags="ismxADSUXJu"></regex-input>
 ```
 
-
-
 ### `regexerror` *{string}*
 
 __Default:__ "" *(empty string)*
@@ -146,7 +189,7 @@ If the input is being used for an external regex engine
 (e.g. PHP PCRE) this will change how flags are filtered and allow
 the client to supply custom flags appropriate to the regex engine.
 
-> __NOTE:__ `notjs` should never be used without one of the non-RegExp related attributes (`delim`, `pairddelims`, `allowedflags`, `allowinvalid`)
+> __NOTE:__ `notjs` should never be used without one of the non-RegExp related attributes (`delim`, `paireddelims`, `allowedflags`, `allowinvalid`)
 
 ```html
 <regex-input pattern="" flags="" notjs allowedflags="ismxADSUXJu"></regex-input>
@@ -180,7 +223,7 @@ to make it clearer what the UI is for.
 <regex-input pattern="" flags="" notjs delim="`"></regex-input>
 ```
 
-### `pairddelims` *{boolean}*
+### `paireddelims` *{boolean}*
 
 __Default:__ `false`
 
@@ -189,7 +232,7 @@ __Default:__ `false`
 
 Some regular expression engines (like PHP PCRE) allow paird delimiters
 (e.g. `<` & `>`).<br />
-If `pairddelims` is a character that can be a paired delimiter then
+If `paireddelims` is a character that can be a paired delimiter then
 the paired characters will be used as opening and closing delimiters.
 e.g. `(^[a-z]+$)is`.
 
@@ -262,6 +305,95 @@ will cause all changes to the pattern to trigger a change event.
 ```html
 <regex-input pattern="" flags="" notjs allowinvalid></regex-input>
 ```
+
+
+-----
+
+## Public properties
+
+### `testSample` *{string}*
+
+Sample string that can be passed to an external regex engine for 
+testing.
+
+### `splitSample` *{boolean}*
+
+Whether or not to split the string on new line characters.
+
+### `trimSample` *{boolean}*
+
+Whether or not to trim the sample string(s) before applying the 
+regex. (Useful if your regex includes matching the begining and/or 
+end of the string.)
+
+### `hasError` *{boolean}*
+
+Whether or not the javascript RegExp engine encountered an error.
+
+### `wholeRegex` *{string}*
+
+The whole regex, including delimiters and flags.
+
+### `results` *{Array}*
+
+> __NOTE:__ This is not yet working. 
+>           (I have a bit of learning to do on handling updates made
+>           by the client code.)
+
+If updated externally the `results` property should contain an array 
+of objects that look like something like this:
+
+
+Given the regular expression:
+```javascript
+/^([a-z]{2}).*?([a-z]+)$/i
+```
+And the sample (split & trimmed):
+
+```text
+lit-html
+Web Components
+I am a funcky chicken
+lit-element is awesome
+```
+
+The results should look like this: 
+
+```json
+[
+  {
+    "sample": "lit-html",
+    "matches": [
+      "lit-html",
+      "li",
+      "html"
+    ]
+  },
+  {
+    "sample": "Web Components",
+    "matches": [
+      "Web Components",
+      "We",
+      "Componenets"
+    ]
+  },
+  {
+    "sample": "I am a funcky chicken.",
+    "matches": [] // Nothing was matched for this sample
+  },
+  {
+    "sample": "lit-element is awesome",
+    "matches": [
+      "lit-element is awesome",
+      "li",
+      "awesome"
+    ]
+  }
+]
+```
+
+> __NOTE:__ With the above regex an empty array should be returned 
+>           if the sample was __not__ split *and* trimmed.
 
 -----
 

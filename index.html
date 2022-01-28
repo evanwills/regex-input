@@ -13,10 +13,11 @@
 				--txt-colour: #fff;
 				--bg-colour: #2d2b2b;
 				--border-radius: 0.85rem;
+        --default-input-font: 'Courier New', Courier, monospace;
 			}
 			body {
 				background-color: var(--bg-colour);
-				color: var(--text-colour);
+				color: var(--txt-colour);
 				font-family: Arial, Helvetica, sans-serif;
 			}
 			.field {
@@ -49,7 +50,7 @@
 
 		<p class="field">
 			<label for="regex8">Regex (test-ui)</label>
-			<regex-input pattern="^[a-z]+$" fieldid="regex8" id="regex-input--8" autofocus flags="ig" focus testable></regex-input>
+			<regex-input pattern="^([a-z]{2}).*?([a-z]+)$" fieldid="regex8" id="regex-input--8" autofocus flags="i" focus testable></regex-input>
 		</p>
 		<hr />
 		<p class="field">
@@ -89,7 +90,7 @@
 				console.group('regex-input event listener')
 				console.log('this:', this)
 				console.log('this.flags:', this.__flags)
-				console.log('this.value:', this.__value)
+				console.log('this.pattern:', this.__pattern)
 				console.log('this.wholeRegex:', this.wholeRegex)
 				console.groupEnd()
 			}

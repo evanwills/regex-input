@@ -1,6 +1,7 @@
 /** Globals Error */
 import { html, css, LitElement, TemplateResult, } from 'lit';
 import {customElement, property, state} from 'lit/decorators.js';
+import { Iresults } from './vite-env';
 
 @customElement('regex-input')
 export class RegexInput extends LitElement {
@@ -140,6 +141,30 @@ export class RegexInput extends LitElement {
   allowInvalid : boolean = false;
 
   /**
+   * Whether or not to render sample test UI
+   *
+   * @var _showTestUI
+   */
+  @state()
+  public testSample : string = '';
+
+  /**
+   * Whether or not to split the sample before processing
+   *
+   * @var splitSample
+   */
+  @state()
+  public splitSample : boolean = false;
+
+  /**
+   * Whether or not to trim the sample(s) before processing
+   *
+   * @var trimSample
+   */
+  @state()
+  public trimSample : boolean = false;
+
+  /**
    * Does the regex have any errors
    *
    * @var hasError
@@ -154,6 +179,14 @@ export class RegexInput extends LitElement {
    */
   @state()
   public wholeRegex : string = '';
+
+  /**
+   * Two dimenstional array
+   *
+   * @var results
+   */
+  @state()
+  public results : Array<Iresults> = [];
 
   /**
    * Opening delimiter character
@@ -241,30 +274,6 @@ export class RegexInput extends LitElement {
   @state()
   private _showTestUI : boolean = false;
 
-  /**
-   * Whether or not to render sample test UI
-   *
-   * @var _showTestUI
-   */
-  @state()
-  private _testSample : string = '';
-
-  /**
-   * Whether or not to split the sample before processing
-   *
-   * @var _splitSample
-   */
-  @state()
-  private _splitSample : boolean = false;
-
-  /**
-   * Whether or not to trim the sample(s) before processing
-   *
-   * @var _trimSample
-   */
-  @state()
-  private _trimSample : boolean = false;
-
 
   /**
    * Whether or not to trim the sample(s) before processing
@@ -278,23 +287,25 @@ export class RegexInput extends LitElement {
 
   static styles = css`
     :host {
-      --ri-font-size: 1rem;
-      --ri-border-radius: var(--border-radius, 0.9rem);
-      --ri-text-colour: var(--txt-colour, rgb(255, 255, 255));
-      --ri-bg-colour: var(--bg-colour, rgb(0, 85, 34));
-      --ri-error-bg-colour: var(--error-bg-colour, rgb(150, 0, 0));
-      --ri-error-text-colour: var(--error-txt-colour, rgb(255, 255, 255));
-      --ri-line-width: var(--border-thickness, 0.075rem);
-      --ri-max-width: var(--max-regex-width, 30rem);
-      --ri-default-input-font: 'Courier New', Courier, monospace;
-      --ri-input-font: var(--input-font-family, var(--ri-default-input-font));
-      --ri-outline-width: var(--outline-thickness, 0.25rem);
-      --ri-outline-style: var(--outline-style, dotted);
-      --ri-outline-offset: var(--outline-offset, 0.2rem);
+      --ri-border-radius: var(0.9rem);
 
-      font-size: 1rem;
-      background-color: var(--ri-bg-colour, inherit);
-      color:  var(--ri-text-colour, inherit);
+      --wc-font-size: 1rem;
+      --wc-border-radius: var(--border-radius, var(--ri-border-radius));
+      --wc-text-colour: var(--txt-colour, rgb(255, 255, 255));
+      --wc-bg-colour: var(--bg-colour, rgb(0, 85, 34));
+      --wc-error-bg-colour: var(--error-bg-colour, rgb(150, 0, 0));
+      --wc-error-text-colour: var(--error-text-colour, rgb(255, 255, 255));
+      --wc-line-width: 0.075rem;
+      --wc-max-width: 30rem;
+      --wc-default-input-font: 'Courier New', Courier, monospace;
+      --wc-input-font: var(--default-input-font, var(--wc-default-input-font));
+      --wc-outline-width: 0.25rem;
+      --wc-outline-style: dotted;
+      --wc-outline-offset: 0.2rem;
+
+      font-size: var(--wc-font-size);
+      background-color: var(--wc-bg-colour, inherit);
+      color:  var(--wc-text-colour, inherit);
       font-family: inherit;
       font-size: inherit;
     }
@@ -313,10 +324,10 @@ export class RegexInput extends LitElement {
       display: block;
     }
     .wrap {
-      backgroud-color: var(--ri-bg-colour);
-      color: var(--ri-text-colour);
-      border: var(--ri-line-width, 0.05rem) solid var(--ri-text-colour, #ccc);
-      border-radius: var(--ri-border-radius);
+      backgroud-color: var(--wc-bg-colour);
+      color: var(--wc-text-colour);
+      border: var(--wc-line-width, 0.05rem) solid var(--wc-text-colour, #ccc);
+      border-radius: var(--wc-border-radius);
       display: inline-flex;
       font-size: 1.1rem;
       font-weight: bold;
@@ -327,24 +338,24 @@ export class RegexInput extends LitElement {
       padding-right: 0.2rem;
     }
     .wrap:focus-within {
-      outline-width: var(--ri-outline-width);
-      outline-style: var(--ri-outline-style);
-      outline-color: var(--ri-text-colour);
-      outline-offset: var(--ri-outline-offset);
+      outline-width: var(--wc-outline-width);
+      outline-style: var(--wc-outline-style);
+      outline-color: var(--wc-text-colour);
+      outline-offset: var(--wc-outline-offset);
     }
     .wrap > span {
-      font-family: var(--ri-input-font);
+      font-family: var(--wc-input-font);
     }
     input {
-      background-color: var(--ri-bg-colour);
+      background-color: var(--wc-bg-colour);
       border: none;
-      color: var(--ri-text-colour);
+      color: var(--wc-text-colour);
       display: inline-block;
-      font-family: var(--ri-input-font);
+      font-family: var(--wc-input-font);
       font-size: 1.1rem;
       text-align: center;
       transition: width ease-in-out 0.2s;
-      max-width: var(--ri-max-width);
+      max-width: var(--wc-max-width);
       padding: 0;
     }
     .regex-flags {
@@ -353,10 +364,10 @@ export class RegexInput extends LitElement {
     .errors {
       margin: -0.5rem 0 0.5rem;
       padding: 0.5rem;
-      color: var(--ri-error-text-colour);
-      background-color: var(--ri-error-bg-colour);
-      border: var(--ri-line-width) solid var(--ri-error-text-colour);
-      border-radius: var(--ri-border-radius);
+      color: var(--wc-error-text-colour);
+      background-color: var(--wc-error-bg-colour);
+      border: var(--wc-line-width) solid var(--wc-error-text-colour);
+      border-radius: var(--wc-border-radius);
     }
     .errors ul {
       margin: 0;
@@ -370,10 +381,10 @@ export class RegexInput extends LitElement {
       margin-top: 0;
     }
     button {
-      background-color: var(--ri-text-colour);
+      background-color: var(--wc-text-colour);
       border: none;
-      border-radius: var(--ri-border-radius);
-      color: var(--ri-bg-colour);
+      border-radius: var(--wc-border-radius);
+      color: var(--wc-bg-colour);
       display: inline-block;
       margin-left: 1rem;
       padding: 0.05rem 0.5rem;
@@ -381,6 +392,14 @@ export class RegexInput extends LitElement {
     }
     button:hover {
       cursor: pointer;
+    }
+    .expanded {
+      transform: scale(1);
+      transform-origin: center;
+      transition: scale ease-in-out 0.3s;
+    }
+    .expanded.collapsed {
+      transform: scale(0);
     }
     .close-bg {
       background-color: #000;
@@ -399,20 +418,18 @@ export class RegexInput extends LitElement {
       right: -0.5rem;
     }
     .test-ui {
-      background-color: var(--ri-bg-colour);
+      background-color: var(--wc-bg-colour);
       box-shadow: 0.5rem 0.5rem 1.5rem rgba(0, 0, 0, 0.8);
-      border: var(--ri-line-width) solid var(--ri-text-colour);
+      border: var(--wc-line-width) solid var(--wc-text-colour);
+      bottom: 4rem;
+      display: flex;
       left: 4rem;
+      // min-height: 30rem;
       padding: 1rem;
       position: fixed;
-      top: 4rem;
-      bottom: 4rem;
       right: 4rem;
-      // min-height: 30rem;
-      // transform: translate(-50%, -50%);
-      // width: 75%;
+      top: 4rem;
       z-index: 110;
-      display: flex;
     }
     .test-ui-inner {
       flex-grow: 1;
@@ -459,8 +476,8 @@ export class RegexInput extends LitElement {
     .controls > label {
       display: block;
       margin: 0 0 0.5rem;
-      padding-left: 1.55rem;
-      text-indent: -1.55rem;
+      padding-left: 1.35rem;
+      text-indent: -1.6rem;
     }
     .test-results {
       grid-area: results;
@@ -484,7 +501,7 @@ export class RegexInput extends LitElement {
     .multi-match > li {
       list-style-type: none;
       padding: 0.5rem 0 0 0;
-      border-top: var(--ri-line-width) dotted var(--ri-text-colour);
+      border-top: var(--wc-line-width) dotted var(--wc-text-colour);
       margin-bottom: 0.5rem;
     }
     .multi-match > li:first-child {
@@ -757,68 +774,60 @@ export class RegexInput extends LitElement {
     return input.replace(/"/g, '&#34;')
   }
 
-  _getValue (event : Event) : string {
+  _eventGetter(event : Event) : HTMLInputElement {
     event.preventDefault()
-    const input = event.target as HTMLInputElement;
+    return event.target as HTMLInputElement;
+  }
+
+  _getValue (event : Event) : string {
+    const input = this._eventGetter(event);
     return input.value;
   }
 
   _getIsChecked (event : Event) : boolean {
-    event.preventDefault()
-    const input = event.target as HTMLInputElement;
+    const input = this._eventGetter(event);
     return input.checked;
   }
 
-  _getTestResults () : TemplateResult {
-    console.group('_getTestResults()')
-    this._showResults = false;
-    console.log('this.regexError:', this.regexError)
-    console.log('this.flags:', this.flags)
-    console.log('this._testSample:', this._testSample)
+  /**
+   * Apply regex to sample(s) and store the result
+   *
+   * @returns {void}
+   */
+  _getTestResults () : void {
+    // console.group('_getTestResults()')
+    // console.log('this.regexError:', this.regexError)
+    // console.log('this.pattern:', this.pattern)
+    // console.log('this.flags:', this.flags)
+    // console.log('this.testSample:', this.testSample)
 
     const regex = new RegExp(this.pattern, this.flags);
 
-    if (this.regexError === '') {
-      const samples = (this._splitSample)
-        ? this._testSample.split("\n")
-        : [this._testSample];
+    this.results = []
 
-      if (this._trimSample) {
+    if (this.regexError === '') {
+      const samples = (this.splitSample)
+        ? this.testSample.split("\n")
+        : [this.testSample];
+
+      if (this.trimSample) {
         for (let a = 0; a < samples.length; a += 1) {
           samples[a] = samples[a].trim();
         }
+      };
+      for (let a = 0; a < samples.length; a += 1) {
+        const matches  = samples[a].match(regex);
+
+        this.results.push({
+          sample: samples[a],
+          matches: (matches !== null)
+            ? matches
+            : []
+        });
       }
-      console.log('samples:', samples);
-      console.groupEnd()
-      this.requestUpdate();
-      return (samples.length > 1)
-        ? html`<ul class="multi-match">${samples.map(item => html`<li>${this._singleTestResult(item, regex)}</li>`)}</ul>`
-        : this._singleTestResult(samples[0], regex);
-    } else {
-      console.groupEnd()
-      this.requestUpdate();
-      return html`Regular expression invalid: <code>${this.regexError}</code>`;
     }
-
-
-    return html`funky`;
-  }
-
-  _singleTestResult (str : string, regex : RegExp) : TemplateResult {
-    const matches : Array<string>|null = str.match(regex)
-    console.group('_singleTestResult()');
-    console.log('str:', str);
-    console.log('regex:', regex);
-    console.log('matches:', matches);
-    console.groupEnd();
-    return html`
-    <div class="match-result">
-      <p><strong>Sample:</strong> <code>${str}</code></p>
-      ${(matches === null)
-        ? html`<p>Nothing was matched</p>`
-        : html`<ol class="result-matches">${matches.map(match => html`<li><code>${match}</code></li>`)}</ol>`}
-    </div>
-    `
+    // console.log('this.results:', this.results)
+    // console.groupEnd();
   }
 
   //  END:  Private helper methods
@@ -976,24 +985,104 @@ export class RegexInput extends LitElement {
   }
 
   toggleSplit (event: Event) : void {
-    this._splitSample = this._getIsChecked(event)
+    event.preventDefault()
+    this.splitSample = this._getIsChecked(event)
   }
 
   toggleTrim (event: Event) : void {
-    this._trimSample = this._getIsChecked(event)
+    event.preventDefault()
+    this.trimSample = this._getIsChecked(event)
   }
 
   sampleChange (event: Event) : void {
-    this._testSample = this._getValue(event)
+    this.testSample = this._getValue(event)
   }
 
-  runTest () : void {
-    this._showResults = true;
+  /**
+   * Test
+   * @param event
+   */
+  runTest (event: Event) : void {
+    event.preventDefault()
+
+    // Only bother running the test if there is a non-empty sample
+    // to work with.
+    if (this.testSample.trim() !== '') {
+      if (this.notJs === false) {
+        this._showResults = true;
+
+        this._getTestResults()
+        this.requestUpdate()
+      } else {
+        // Only dispatch an event if an external engine is used
+        this.dispatchEvent(
+          new Event('click', { bubbles: true, composed: true })
+        )
+      }
+    }
   }
 
   //  END:  Private helper methods
   // --------------------------------------------
   // START: Public methods
+
+
+  /**
+   * Render the results from a single sample
+   *
+   * @param input Single sample match data
+   *
+   * @returns HTML for a single sample match
+   */
+  renderSingleTestResult (input : Iresults) : TemplateResult {
+    console.group('renderSingleTestResult()');
+    console.log('input:', input);
+    console.log('input.sample:', input.sample);
+    console.log('input.matches:', input.matches);
+    console.groupEnd();
+
+    return html`
+    <div class="match-result">
+      <p><strong>Sample:</strong> <code>${input.sample}</code></p>
+      ${(input.matches.length === 0)
+        ? html`<p>Nothing was matched</p>`
+        : html`<ol class="result-matches">${input.matches.map(match => html`<li><code>${match}</code></li>`)}</ol>`}
+    </div>
+    `
+  }
+
+  /**
+   * Render the results from all samples
+   *
+   * @returns HTML for a all sample matches
+   */
+  renderTestResults () : TemplateResult|string {
+    console.group('renderTestResults()')
+    this._showResults = false;
+    console.log('this.regexError:', this.regexError)
+    console.log('this.flags:', this.flags)
+    console.log('this.testSample:', this.testSample)
+
+    if (this.regexError === '') {
+      if (this.results.length > 0) {
+        console.log('Rendering some results');
+        console.groupEnd();
+
+        return (this.results.length > 1)
+          ? html`<ul class="multi-match">${this.results.map(item => html`<li>${this.renderSingleTestResult(item)}</li>`)}</ul>`
+          : this.renderSingleTestResult(this.results[0]);
+      } else {
+        console.log('There were no results');
+        console.groupEnd();
+        return ''
+      }
+    } else {
+      console.log('Bad regex');
+      console.groupEnd();
+      this.requestUpdate();
+      return html`Regular expression invalid: <code>${this.regexError}</code>`;
+    }
+  }
 
   /**
    * Render the user interface for sample test
@@ -1002,9 +1091,16 @@ export class RegexInput extends LitElement {
    * @param hasErrors Whether or not there are any errors in the regex
    * @param errors    Rendered error HTML (or empty string)
    *
-   * @returns
+   * @returns {TemplateResult}
    */
-  renderTestUI (hasErrors : boolean, errors : TemplateResult|string) : TemplateResult {
+  renderTestUI (
+    hasErrors : boolean,
+    errors : TemplateResult|string
+  ) : TemplateResult {
+    console.group('renderTestUI()')
+    console.log('this._showResults:', this._showResults)
+    console.log('this.results:', this.results)
+    console.groupEnd();
     return html`
     <button class="close-bg" @click=${this.toggleTestUI}>Close</button>
     <section class="test-ui">
@@ -1014,25 +1110,25 @@ export class RegexInput extends LitElement {
         <div class="regex">
           <span class="wrap">${this.renderRegex()}</span>
         </div>
-        <textarea @change=${this.sampleChange}>${this._testSample}</textarea>
+        <textarea @change=${this.sampleChange}>${this.testSample}</textarea>
         <div class="controls">
           <button class="test-btn" @click=${this.runTest}>Run test</button>
           <label class="split-checkbox">
             <input type="checkbox"
-                   .checked=${this._splitSample}
+                   .checked=${this.splitSample}
                    @change=${this.toggleSplit} />
             Spilt sample on new line
           </label>
           <label class="trim-checkbox">
             <input type="checkbox"
-                   .checked=${this._trimSample}
+                   .checked=${this.trimSample}
                    @change=${this.toggleTrim} />
-            Trim sample${(this._splitSample) ? 's' : ''}
+            Trim sample${(this.splitSample) ? 's' : ''}
           </label>
         </div>
         <div class="test-results" aria-live="polite">
           ${(this._showResults)
-            ? this._getTestResults()
+            ? this.renderTestResults()
             : ''
           }
         </div>
@@ -1045,7 +1141,8 @@ export class RegexInput extends LitElement {
    *
    * @param labelClass whether or not the label should be shown or
    *                   hidden
-   * @returns
+   *
+   * @returns {TemplateResult|string}
    */
   renderFlags(labelClass: string) : TemplateResult|string {
     const flagsClass = (this._flagErrors.length > 0)
@@ -1082,7 +1179,8 @@ export class RegexInput extends LitElement {
 
   /**
    * Render the regex & flags input fields along with the delimiters
-   * @returns html
+   *
+   * @returns {TemplateResult}
    */
   renderRegex() : TemplateResult {
     const regexClass = (this.regexError !== '')
