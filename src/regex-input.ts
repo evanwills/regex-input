@@ -541,7 +541,7 @@ export class RegexInput extends LitElement {
    *
    * @returns {void}
    */
-  _doInit () {
+  private _doInit () {
     if (this._initDone === false) {
       this._initDone = true;
       if (this.allowedFlags !== '') {
@@ -984,22 +984,41 @@ export class RegexInput extends LitElement {
       : false;
   }
 
+  /**
+   * Event handler for toggling whether or not to split sample
+   * on new lines
+   *
+   * @param event
+   */
   toggleSplit (event: Event) : void {
     event.preventDefault()
     this.splitSample = this._getIsChecked(event)
   }
 
+  /**
+   * Event handler for toggling whether or not to trim sample(s)
+   * before applying regex
+   *
+   * @param event
+   */
   toggleTrim (event: Event) : void {
     event.preventDefault()
     this.trimSample = this._getIsChecked(event)
   }
 
+  /**
+   * Event handler for updating the state when user changes the
+   * sample string
+   *
+   * @param event
+   */
   sampleChange (event: Event) : void {
     this.testSample = this._getValue(event)
   }
 
   /**
-   * Test
+   * Do all the work of testing the sample input against the regex
+   *
    * @param event
    */
   runTest (event: Event) : void {
@@ -1035,11 +1054,11 @@ export class RegexInput extends LitElement {
    * @returns HTML for a single sample match
    */
   renderSingleTestResult (input : Iresults) : TemplateResult {
-    console.group('renderSingleTestResult()');
-    console.log('input:', input);
-    console.log('input.sample:', input.sample);
-    console.log('input.matches:', input.matches);
-    console.groupEnd();
+    // console.group('renderSingleTestResult()');
+    // console.log('input:', input);
+    // console.log('input.sample:', input.sample);
+    // console.log('input.matches:', input.matches);
+    // console.groupEnd();
 
     return html`
     <div class="match-result">
@@ -1057,28 +1076,28 @@ export class RegexInput extends LitElement {
    * @returns HTML for a all sample matches
    */
   renderTestResults () : TemplateResult|string {
-    console.group('renderTestResults()')
     this._showResults = false;
-    console.log('this.regexError:', this.regexError)
-    console.log('this.flags:', this.flags)
-    console.log('this.testSample:', this.testSample)
+    // console.group('renderTestResults()')
+    // console.log('this.regexError:', this.regexError)
+    // console.log('this.flags:', this.flags)
+    // console.log('this.testSample:', this.testSample)
 
     if (this.regexError === '') {
       if (this.results.length > 0) {
-        console.log('Rendering some results');
-        console.groupEnd();
+        // console.log('Rendering some results');
+        // console.groupEnd();
 
         return (this.results.length > 1)
           ? html`<ul class="multi-match">${this.results.map(item => html`<li>${this.renderSingleTestResult(item)}</li>`)}</ul>`
           : this.renderSingleTestResult(this.results[0]);
       } else {
-        console.log('There were no results');
-        console.groupEnd();
+        // console.log('There were no results');
+        // console.groupEnd();
         return ''
       }
     } else {
-      console.log('Bad regex');
-      console.groupEnd();
+      // console.log('Bad regex');
+      // console.groupEnd();
       this.requestUpdate();
       return html`Regular expression invalid: <code>${this.regexError}</code>`;
     }
@@ -1097,10 +1116,10 @@ export class RegexInput extends LitElement {
     hasErrors : boolean,
     errors : TemplateResult|string
   ) : TemplateResult {
-    console.group('renderTestUI()')
-    console.log('this._showResults:', this._showResults)
-    console.log('this.results:', this.results)
-    console.groupEnd();
+    // console.group('renderTestUI()')
+    // console.log('this._showResults:', this._showResults)
+    // console.log('this.results:', this.results)
+    // console.groupEnd();
     return html`
     <button class="close-bg" @click=${this.toggleTestUI}>Close</button>
     <section class="test-ui">
@@ -1271,7 +1290,7 @@ export class RegexInput extends LitElement {
 
     const testClass = (showBtn === true) ? ' testing' : '';
 
-    const UI = this.renderRegex();
+    // const UI = this.renderRegex();
 
     console.groupEnd();
 

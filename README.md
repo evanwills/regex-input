@@ -2,6 +2,7 @@
 
 
 * [Introduction](#introduction)
+* [Demo](#demo)
 * [Installation](#installation)
 * [Attributes](#attributes)
   * [pattern](#pattern-string)
@@ -52,6 +53,12 @@ can pass the `pattern`,  `flags`, `sampleText`, `splitSample` &
 `trimSample` values to an external regex engine (e.g. PHP's PCRE) 
 then return the results to the `results` property which then can be 
 rendered.
+
+-----
+
+## Demo
+
+See this [CodePen](https://codepen.io/evanwills/pen/ExRzwOa) for a working demo.
 
 -----
 
